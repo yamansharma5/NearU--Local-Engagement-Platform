@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');//default rate limit for all routes, can be overridden for specific routes like auth
+const rateLimit = require('express-rate-limit');
 
 const env = require('./src/config/env');
 const prisma = require('./lib/prisma');
@@ -25,7 +25,7 @@ app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 100,
-    standardHeaders: true,//this is 
+    standardHeaders: true,
     legacyHeaders: false,
     message: { success: false, message: 'Too many requests, please try again later.' },
   })
