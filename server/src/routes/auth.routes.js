@@ -11,7 +11,7 @@ const router = Router();
 router.post('/register', validate(registerSchema), register);
 router.post('/login', validate(loginSchema), login);
 router.post('/logout', logout);
-router.get('/me', authenticateToken, me);
+router.get('/me', authenticateToken, me);// Get current user info for both users and businesses
 
 // Business auth
 router.post('/business/register', validate(businessRegisterSchema), businessRegister);
