@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,18 +6,9 @@ datasource db {
   provider = "postgresql"
 }
 
-// ─── Enums ────────────────────────────────────────────────────────────────────
-
 enum Role {
   USER
   BUSINESS
-  ADMIN
-}
-
-enum VerificationStatus {
-  PENDING
-  VERIFIED
-  REJECTED
 }
 
 enum PostType {
@@ -31,32 +19,8 @@ enum PostType {
 
 enum EnquiryStatus {
   PENDING
-  READ
   REPLIED
 }
-
-enum SavedItemType {
-  BUSINESS
-  POST
-  OFFER
-  EVENT
-}
-
-enum ReportStatus {
-  PENDING
-  RESOLVED
-  DISMISSED
-}
-
-enum AnalyticsEventType {
-  VIEW
-  ENQUIRY
-  CLICK
-  SAVE
-  FOLLOW
-}
-
-// ─── Models ───────────────────────────────────────────────────────────────────
 
 model User {
   id        String   @id @default(cuid())
@@ -64,267 +28,94 @@ model User {
   email     String   @unique
   password  String
   role      Role     @default(USER)
-  avatar    String?
   phone     String?
-  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  business      Business?
-  posts         Post[]
-  enquiries     Enquiry[]
-  savedItems    SavedItem[]
-  follows       Follow[]
-  reviews       Review[]
-  reports       Report[]
-  notifications Notification[]
+  business  Business?
+  enquiries Enquiry[]
 
   @@index([email])
   @@index([role])
-}
-
-model Business {
-  id                 String             @id @default(cuid())
-  name               String
-  description        String?
-  phone              String?
-  logo               String?
-  verificationStatus VerificationStatus @default(PENDING)
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime           @updatedAt
-
-  ownerId    String   @unique
-  owner      User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  categoryId String?
-  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-
-  location       BusinessLocation?
-  posts          Post[]
-  offers         Offer[]
-  events         Event[]
-  enquiries      Enquiry[]
-  followers      Follow[]
-  reviews        Review[]
-  analyticsEvents AnalyticsEvent[]
-
-  @@index([categoryId])
-  @@index([verificationStatus])
-}
-
-model BusinessLocation {
-  id           String   @id @default(cuid())
-  address      String
-  city         String
-  state        String
-  pincode      String
-  lat          Float
-  lng          Float
-  openingHours Json?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  businessId String   @unique
-  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
-
-  @@index([lat, lng])
 }
 
 model Category {
   id        String   @id @default(cuid())
   name      String
   slug      String   @unique
-  icon      String?
-  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   businesses Business[]
 
   @@index([slug])
-  @@index([isActive])
+}
+
+model Business {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  phone       String?
+  logo        String?
+  address     String
+  lat         Float
+  lng         Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  ownerId    String    @unique
+  owner      User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  posts      Post[]
+  enquiries  Enquiry[]
+
+  @@index([ownerId])
+  @@index([categoryId])
+  @@index([lat, lng])
 }
 
 model Post {
-  id        String   @id @default(cuid())
-  content   String
-  images    String[]
-  type      PostType @default(UPDATE)
-  lat       Float?
-  lng       Float?
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(cuid())
+  businessId String
+  type       PostType @default(UPDATE)
+  title      String
+  content    String
+  image      String?
+  lat        Float
+  lng        Float
+  isActive   Boolean  @default(true)
+  discount   String?
+  validUntil DateTime?
+  eventDate  DateTime?
+  venue      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  authorId   String
-  author     User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  businessId String?
-  business   Business? @relation(fields: [businessId], references: [id], onDelete: SetNull)
-
+  business  Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
   enquiries Enquiry[]
 
-  @@index([authorId])
   @@index([businessId])
   @@index([type])
   @@index([isActive])
   @@index([lat, lng])
 }
 
-model Offer {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  discount    String?
-  images      String[]
-  validFrom   DateTime?
-  validUntil  DateTime?
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  businessId String
-  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
-
-  enquiries Enquiry[]
-
-  @@index([businessId])
-  @@index([isActive])
-  @@index([validUntil])
-}
-
-model Event {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  date        DateTime
-  venue       String?
-  images      String[]
-  lat         Float?
-  lng         Float?
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  businessId String
-  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
-
-  enquiries Enquiry[]
-
-  @@index([businessId])
-  @@index([isActive])
-  @@index([date])
-  @@index([lat, lng])
-}
-
 model Enquiry {
   id        String        @id @default(cuid())
+  userId    String
+  businessId String
+  postId    String?
   message   String
   status    EnquiryStatus @default(PENDING)
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
 
-  userId     String
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  businessId String
-  business   Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  postId     String?
-  post       Post?     @relation(fields: [postId], references: [id], onDelete: SetNull)
-  offerId    String?
-  offer      Offer?    @relation(fields: [offerId], references: [id], onDelete: SetNull)
-  eventId    String?
-  event      Event?    @relation(fields: [eventId], references: [id], onDelete: SetNull)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  post     Post?    @relation(fields: [postId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([businessId])
   @@index([status])
-}
-
-model SavedItem {
-  id        String        @id @default(cuid())
-  itemType  SavedItemType
-  itemId    String
-  createdAt DateTime      @default(now())
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, itemType, itemId])
-  @@index([userId])
-  @@index([itemType])
-}
-
-model Follow {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  businessId String
-  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, businessId])
-  @@index([businessId])
-}
-
-model Review {
-  id        String   @id @default(cuid())
-  rating    Int
-  content   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  businessId String
-  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, businessId])
-  @@index([businessId])
-  @@index([rating])
-}
-
-model Report {
-  id        String       @id @default(cuid())
-  itemType  String
-  itemId    String
-  reason    String
-  status    ReportStatus @default(PENDING)
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
-
-  reporterId String
-  reporter   User   @relation(fields: [reporterId], references: [id], onDelete: Cascade)
-
-  @@index([reporterId])
-  @@index([status])
-  @@index([itemType, itemId])
-}
-
-model Notification {
-  id        String   @id @default(cuid())
-  type      String
-  title     String
-  body      String
-  isRead    Boolean  @default(false)
-  data      Json?
-  createdAt DateTime @default(now())
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([isRead])
-}
-
-model AnalyticsEvent {
-  id        String             @id @default(cuid())
-  eventType AnalyticsEventType
-  metadata  Json?
-  createdAt DateTime           @default(now())
-
-  businessId String
-  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
-
-  @@index([businessId])
-  @@index([eventType])
-  @@index([createdAt])
 }

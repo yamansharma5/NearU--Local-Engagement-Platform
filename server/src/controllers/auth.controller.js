@@ -45,8 +45,6 @@ const login = async (req, res, next) => {
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) return error(res, 'Invalid email or password.', 401);
-    if (!user.isActive) return error(res, 'Account is deactivated.', 403);
-
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) return error(res, 'Invalid email or password.', 401);
 
@@ -69,8 +67,9 @@ const me = async (req, res, next) => {
       where: { id: req.user.id },
       select: {
         id: true, name: true, email: true, role: true,
-        avatar: true, phone: true, isActive: true,
+        phone: true,
         createdAt: true, updatedAt: true,
+        business: true,
       },
     });
     if (!user) return error(res, 'User not found.', 404);
@@ -83,8 +82,20 @@ const me = async (req, res, next) => {
 // POST /api/auth/business/register
 const businessRegister = async (req, res, next) => {
   try {
-    const { name, email, password, phone, businessName, description, businessPhone, categoryId } =
-      req.body;
+    const {
+      name,
+      email,
+      password,
+      phone,
+      businessName,
+      description,
+      businessPhone,
+      logo,
+      categoryId,
+      address,
+      lat,
+      lng,
+    } = req.body;
 
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) return error(res, 'Email already registered.', 409);
@@ -101,9 +112,12 @@ const businessRegister = async (req, res, next) => {
           name: businessName,
           description,
           phone: businessPhone,
+          logo,
+          address,
+          lat,
+          lng,
           ownerId: user.id,
           ...(categoryId && { categoryId }),
-          verificationStatus: 'PENDING',
         },
       });
       return { user, business };
@@ -131,7 +145,6 @@ const businessLogin = async (req, res, next) => {
       include: { business: true },
     });
     if (!user || user.role !== 'BUSINESS') return error(res, 'Invalid email or password.', 401);
-    if (!user.isActive) return error(res, 'Account is deactivated.', 403);
 
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) return error(res, 'Invalid email or password.', 401);

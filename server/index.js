@@ -46,7 +46,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // ─── Routes ──────────────────────────────────────────────────────────────────
 app.get('/', (_req, res) => {
-  res.json({ success: true, message: 'HyperLocal Lens API is running' });
+  res.json({ success: true, message: 'NearU API is running' });
 });
 
 app.use('/api/auth', authLimiter, authRoutes);
