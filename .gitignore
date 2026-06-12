@@ -26,3 +26,11 @@ build/
 # Prisma
 prisma/*.db
 prisma/*.db-journal
+
+# Misc
+*.swp
+.md
+
+# Planning docs
+PLAN.md
+PLAN (1).md

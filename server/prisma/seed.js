@@ -3,20 +3,24 @@ const { PrismaPg } = require('@prisma/adapter-pg');
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
+// Use pg adapter so Prisma connects via DATABASE_URL (PostgreSQL)
 const adapter = new PrismaPg(process.env.DATABASE_URL);
 const prisma = new PrismaClient({ adapter });
 
+// bcrypt cost factor — high enough for security, low enough for seed speed
 const SALT_ROUNDS = 12;
 
 async function main() {
   console.log('Seeding NearU MVP data...');
 
+  // Wipe in dependency order so foreign-key constraints don't block deletion
   await prisma.enquiry.deleteMany();
   await prisma.post.deleteMany();
   await prisma.business.deleteMany();
   await prisma.category.deleteMany();
   await prisma.user.deleteMany();
 
+  // --- Categories ---
   const [food, retail, services, events, health] = await Promise.all([
     prisma.category.create({ data: { name: 'Food', slug: 'food' } }),
     prisma.category.create({ data: { name: 'Retail', slug: 'retail' } }),
@@ -25,10 +29,13 @@ async function main() {
     prisma.category.create({ data: { name: 'Health', slug: 'health' } }),
   ]);
 
+  // Suppress "unused variable" warnings — these categories exist in DB but
+  // aren't referenced by the seed businesses below yet
   void retail;
   void services;
   void events;
 
+  // --- Regular users (role: USER) ---
   const user1 = await prisma.user.create({
     data: {
       name: 'Arjun Sharma',
@@ -49,6 +56,7 @@ async function main() {
     },
   });
 
+  // --- Business owners (role: BUSINESS) ---
   const owner1 = await prisma.user.create({
     data: {
       name: 'Ramesh Patel',
@@ -69,6 +77,8 @@ async function main() {
     },
   });
 
+  // --- Businesses ---
+  // Coordinates are real Bengaluru locations for realistic geo-radius queries
   const business1 = await prisma.business.create({
     data: {
       ownerId: owner1.id,
@@ -95,6 +105,8 @@ async function main() {
     },
   });
 
+  // --- Posts ---
+  // Dates are relative to seed time so posts are always in the future
   const nextWeek = new Date();
   nextWeek.setDate(nextWeek.getDate() + 7);
   const nextMonth = new Date();
@@ -102,6 +114,7 @@ async function main() {
 
   await prisma.post.createMany({
     data: [
+      // business1 posts: one daily update, one time-limited offer
       {
         businessId: business1.id,
         type: 'UPDATE',
@@ -120,6 +133,7 @@ async function main() {
         lat: business1.lat,
         lng: business1.lng,
       },
+      // business2 posts: upcoming event and a slot update
       {
         businessId: business2.id,
         type: 'EVENT',
@@ -141,6 +155,8 @@ async function main() {
     ],
   });
 
+  // --- Enquiry ---
+  // Sample enquiry from user1 to business1 to exercise the enquiry flow
   await prisma.enquiry.create({
     data: {
       userId: user1.id,
