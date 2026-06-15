@@ -29,8 +29,9 @@ prisma/*.db-journal
 
 # Misc
 *.swp
-.md
 
 # Planning docs
 PLAN.md
 PLAN (1).md
+PLAN_UPDATED_SIMPLIFIED.md
+NEARU_MVP_PLAN.md
