@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { MapPin } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -31,14 +32,54 @@ export default function BusinessSignupPage() {
   const router = useRouter();
   const login = useAuthStore((state) => state.login);
   const [serverError, setServerError] = useState("");
+  const [locationStatus, setLocationStatus] = useState("");
+  const [isLocating, setIsLocating] = useState(false);
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(schema),
     defaultValues: { lat: 12.9716, lng: 77.5946 },
   });
+
+  const fillCurrentLocation = useCallback(() => {
+    if (!("geolocation" in navigator)) {
+      setLocationStatus("Location is not supported by this browser.");
+      return;
+    }
+
+    setIsLocating(true);
+    setLocationStatus("Fetching current location...");
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = Number(position.coords.latitude.toFixed(6));
+        const lng = Number(position.coords.longitude.toFixed(6));
+
+        setValue("lat", lat, { shouldDirty: true, shouldValidate: true });
+        setValue("lng", lng, { shouldDirty: true, shouldValidate: true });
+        setLocationStatus("Current location added.");
+        setIsLocating(false);
+      },
+      (error) => {
+        const message =
+          error.code === error.PERMISSION_DENIED
+            ? "Location permission was denied."
+            : "Unable to fetch current location.";
+
+        setLocationStatus(message);
+        setIsLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+    );
+  }, [setValue]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(fillCurrentLocation, 0);
+    return () => window.clearTimeout(timer);
+  }, [fillCurrentLocation]);
 
   const onSubmit = async (values) => {
     setServerError("");
@@ -57,6 +98,19 @@ export default function BusinessSignupPage() {
       <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-2xl rounded-lg border border-zinc-800 bg-zinc-900 p-6">
         <h1 className="text-2xl font-semibold text-white">Register business</h1>
         <p className="mt-2 text-sm text-zinc-400">Create the owner account and business profile in one step.</p>
+
+        <div className="mt-5 flex flex-col gap-2 rounded-md border border-zinc-800 bg-zinc-950 p-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-zinc-300">{locationStatus || "Location fields can be filled automatically."}</p>
+          <button
+            type="button"
+            onClick={fillCurrentLocation}
+            disabled={isLocating}
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-zinc-700 px-3 text-sm font-medium text-zinc-100 hover:bg-zinc-900 disabled:opacity-60"
+          >
+            <MapPin className="h-4 w-4 text-emerald-300" />
+            {isLocating ? "Fetching..." : "Use current location"}
+          </button>
+        </div>
 
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           <Field label="Owner name" error={errors.name?.message} inputProps={register("name")} />
