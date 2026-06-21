@@ -7,6 +7,10 @@ const rateLimit = require('express-rate-limit');
 const env = require('./src/config/env');
 const prisma = require('./lib/prisma');
 const authRoutes = require('./src/routes/auth.routes');
+const postRoutes = require('./src/routes/post.routes');
+const businessRoutes = require('./src/routes/business.routes');
+const categoryRoutes = require('./src/routes/category.routes');
+const enquiryRoutes = require('./src/routes/enquiry.routes');
 const { errorHandler } = require('./src/middlewares/errorHandler.middleware');
 
 const app = express();
@@ -50,6 +54,12 @@ app.get('/', (_req, res) => {
 });
 
 app.use('/api/auth', authLimiter, authRoutes);
+
+// ─── Phase 3: Discovery routes ────────────────────────────────────────────────
+app.use('/api/posts', postRoutes);
+app.use('/api/businesses', businessRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/enquiries', enquiryRoutes);
 
 // ─── Error Handler ────────────────────────────────────────────────────────────
 app.use(errorHandler);
