@@ -35,4 +35,37 @@ const createEnquiry = async ({ userId, businessId, postId, message }) => {
   });
 };
 
-module.exports = { createEnquiry };
+const getBusinessEnquiries = async (ownerId) => {
+  const business = await prisma.business.findUnique({ where: { ownerId } });
+  if (!business) throw Object.assign(new Error('Business profile not found.'), { statusCode: 404 });
+  return prisma.enquiry.findMany({
+    where: { businessId: business.id },
+    include: {
+      user: { select: { id: true, name: true, email: true, phone: true } },
+      post: { select: { id: true, title: true, type: true } },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+};
+
+const markEnquiryReplied = async (ownerId, enquiryId) => {
+  const [business, enquiry] = await Promise.all([
+    prisma.business.findUnique({ where: { ownerId } }),
+    prisma.enquiry.findUnique({ where: { id: enquiryId } }),
+  ]);
+  if (!business) throw Object.assign(new Error('Business profile not found.'), { statusCode: 404 });
+  if (!enquiry) throw Object.assign(new Error('Enquiry not found.'), { statusCode: 404 });
+  if (enquiry.businessId !== business.id) {
+    throw Object.assign(new Error('You do not own this enquiry.'), { statusCode: 403 });
+  }
+  return prisma.enquiry.update({
+    where: { id: enquiryId },
+    data: { status: 'REPLIED' },
+    include: {
+      user: { select: { id: true, name: true, email: true, phone: true } },
+      post: { select: { id: true, title: true, type: true } },
+    },
+  });
+};
+
+module.exports = { createEnquiry, getBusinessEnquiries, markEnquiryReplied };

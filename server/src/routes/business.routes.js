@@ -1,9 +1,13 @@
 const { Router } = require('express');
-const { getById } = require('../controllers/business.controller');
+const { getById, getMe, updateMe } = require('../controllers/business.controller');
+const { authenticateToken } = require('../middlewares/auth.middleware');
+const { requireRole } = require('../middlewares/role.middleware');
+const { updateBusinessSchema, validate } = require('../validators/business.validator');
 
 const router = Router();
 
-// Public — business profiles are visible to unauthenticated users (discovery flow)
+router.get('/me', authenticateToken, requireRole('BUSINESS'), getMe);
+router.put('/me', authenticateToken, requireRole('BUSINESS'), validate(updateBusinessSchema), updateMe);
 router.get('/:id', getById);
 
 module.exports = router;

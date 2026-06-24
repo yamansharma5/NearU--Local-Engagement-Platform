@@ -11,6 +11,7 @@ const postRoutes = require('./src/routes/post.routes');
 const businessRoutes = require('./src/routes/business.routes');
 const categoryRoutes = require('./src/routes/category.routes');
 const enquiryRoutes = require('./src/routes/enquiry.routes');
+const uploadRoutes = require('./src/routes/upload.routes');
 const { errorHandler } = require('./src/middlewares/errorHandler.middleware');
 
 const app = express();
@@ -60,6 +61,7 @@ app.use('/api/posts', postRoutes);
 app.use('/api/businesses', businessRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/enquiries', enquiryRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // ─── Error Handler ────────────────────────────────────────────────────────────
 app.use(errorHandler);

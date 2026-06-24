@@ -1,13 +1,14 @@
 const { Router } = require('express');
-const { create } = require('../controllers/enquiry.controller');
+const { create, mine, markReplied } = require('../controllers/enquiry.controller');
 const { authenticateToken } = require('../middlewares/auth.middleware');
+const { requireRole } = require('../middlewares/role.middleware');
 const { createEnquirySchema, validate } = require('../validators/enquiry.validator');
 
 const router = Router();
-
-// All enquiry routes require a valid JWT — userId is read from req.user, never from the body
 router.use(authenticateToken);
 
-router.post('/', validate(createEnquirySchema), create);
+router.post('/', requireRole('USER'), validate(createEnquirySchema), create);
+router.get('/me', requireRole('BUSINESS'), mine);
+router.put('/:id/status', requireRole('BUSINESS'), markReplied);
 
 module.exports = router;
