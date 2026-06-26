@@ -30,8 +30,9 @@ prisma/*.db-journal
 # Misc
 *.swp
 
-# Planning docs
+# Planning & architecture docs (local only)
 PLAN.md
 PLAN (1).md
 PLAN_UPDATED_SIMPLIFIED.md
 NEARU_MVP_PLAN.md
+ARCHITECTURE.md
