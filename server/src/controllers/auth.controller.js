@@ -78,6 +78,20 @@ const me = async (req, res, next) => {
     next(err);
   }
 };
+//this is the update me function that allows users to update their profile information. It uses the prisma client to update the user in the database and returns the updated user information in the response.
+// PUT /api/auth/me
+const updateMe = async (req, res, next) => {
+  try {
+    const user = await prisma.user.update({
+      where: { id: req.user.id },
+      data: req.body,
+      select: { id: true, name: true, email: true, role: true, phone: true, createdAt: true, updatedAt: true },
+    });
+    return success(res, { user }, 'Profile updated successfully.');
+  } catch (err) {
+    next(err);
+  }
+};
 
 // POST /api/auth/business/register
 const businessRegister = async (req, res, next) => {
@@ -156,4 +170,4 @@ const businessLogin = async (req, res, next) => {
   }
 };
 
-module.exports = { register, login, logout, me, businessRegister, businessLogin };
+module.exports = { register, login, logout, me, updateMe, businessRegister, businessLogin };
