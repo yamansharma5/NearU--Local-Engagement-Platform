@@ -47,6 +47,7 @@ const login = async (req, res, next) => {
     if (!user) return error(res, 'Invalid email or password.', 401);
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) return error(res, 'Invalid email or password.', 401);
+    if (!user.isActive) return error(res, 'This account has been suspended.', 403);
 
     const token = signToken(user);
     return success(res, { token, user: safeUser(user) }, 'Login successful.');
@@ -162,6 +163,7 @@ const businessLogin = async (req, res, next) => {
 
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) return error(res, 'Invalid email or password.', 401);
+    if (!user.isActive) return error(res, 'This account has been suspended.', 403);
 
     const token = signToken(user);
     return success(res, { token, user: safeUser(user), business: user.business }, 'Login successful.');
