@@ -2,6 +2,8 @@ const {
   getBusinessById,
   getOwnBusiness,
   updateOwnBusiness,
+  listAllBusinesses,
+  toggleBusinessStatus,
 } = require('../services/business.service');
 const { success, error } = require('../utils/apiResponse');
 
@@ -36,4 +38,23 @@ const updateMe = async (req, res, next) => {
   }
 };
 
-module.exports = { getById, getMe, updateMe };
+const adminList = async (req, res, next) => {
+  try {
+    const businesses = await listAllBusinesses({ search: req.query.search });
+    return success(res, { businesses, count: businesses.length });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const adminToggleStatus = async (req, res, next) => {
+  try {
+    const business = await toggleBusinessStatus(req.params.id);
+    return success(res, { business }, 'Business status updated.');
+  } catch (err) {
+    if (err.statusCode) return error(res, err.message, err.statusCode);
+    next(err);
+  }
+};
+
+module.exports = { getById, getMe, updateMe, adminList, adminToggleStatus };

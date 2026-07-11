@@ -4,6 +4,8 @@ const {
   getOwnPosts,
   updatePost,
   deactivatePost,
+  listAllPosts,
+  toggleAdminPostStatus,
 } = require('../services/post.service');
 const { success, error } = require('../utils/apiResponse');
 
@@ -68,4 +70,23 @@ const remove = async (req, res, next) => {
   }
 };
 
-module.exports = { nearby, create, mine, update, remove };
+const adminList = async (req, res, next) => {
+  try {
+    const posts = await listAllPosts({ search: req.query.search, type: req.query.type });
+    return success(res, { posts, count: posts.length });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const adminToggleStatus = async (req, res, next) => {
+  try {
+    const post = await toggleAdminPostStatus(req.params.id);
+    return success(res, { post }, 'Post status updated.');
+  } catch (err) {
+    if (err.statusCode) return error(res, err.message, err.statusCode);
+    next(err);
+  }
+};
+
+module.exports = { nearby, create, mine, update, remove, adminList, adminToggleStatus };

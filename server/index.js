@@ -12,6 +12,7 @@ const businessRoutes = require('./src/routes/business.routes');
 const categoryRoutes = require('./src/routes/category.routes');
 const enquiryRoutes = require('./src/routes/enquiry.routes');
 const uploadRoutes = require('./src/routes/upload.routes');
+const adminRoutes = require('./src/routes/admin.routes');
 const { errorHandler } = require('./src/middlewares/errorHandler.middleware');
 
 const app = express();
@@ -20,7 +21,28 @@ const app = express();
 app.use(helmet());
 app.use(
   cors({
-    origin: env.clientUrl,
+    origin(origin, callback) {
+      const allowedOrigins = new Set([
+        env.clientUrl,
+        'http://localhost:3000',
+        'http://127.0.0.1:3000',
+      ]);
+
+      if (!origin || allowedOrigins.has(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      if (
+        env.nodeEnv === 'development' &&
+        /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)
+      ) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
   })
 );
@@ -62,6 +84,7 @@ app.use('/api/businesses', businessRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/enquiries', enquiryRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/admin', adminRoutes);
 
 // ─── Error Handler ────────────────────────────────────────────────────────────
 app.use(errorHandler);

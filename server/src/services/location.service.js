@@ -56,6 +56,7 @@ const getNearbyPosts = async ({ lat, lng, radius = 5, type, categoryId }) => {
       FROM "Post" p
       JOIN "Business" b ON p."businessId" = b.id
       WHERE p."isActive" = true
+      AND b."isActive" = true
       ${typeFilter}
       ${categoryFilter}
     ) sub

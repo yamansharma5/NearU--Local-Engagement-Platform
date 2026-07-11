@@ -165,11 +165,26 @@ async function main() {
     },
   });
 
+  // --- Admin account ---
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@example.com';
+  const adminPassword = process.env.ADMIN_PASSWORD || 'Admin@123';
+  await prisma.user.create({
+    data: {
+      name: 'NearU Admin',
+      email: adminEmail,
+      password: await bcrypt.hash(adminPassword, SALT_ROUNDS),
+      role: 'ADMIN',
+    },
+  });
+
   console.log('Seed complete.');
   console.log('User 1   -> user1@example.com  / User@123');
   console.log('User 2   -> user2@example.com  / User@123');
   console.log('Business -> owner1@example.com / Owner@123');
   console.log('Business -> owner2@example.com / Owner@123');
+  console.log(
+    `Admin    -> ${adminEmail} / ${process.env.ADMIN_PASSWORD ? '(set via ADMIN_PASSWORD env)' : adminPassword}`
+  );
 }
 
 main()

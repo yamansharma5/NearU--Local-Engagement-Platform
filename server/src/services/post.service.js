@@ -74,4 +74,41 @@ const deactivatePost = async (ownerId, postId) => {
   return prisma.post.update({ where: { id: postId }, data: { isActive: false } });
 };
 
-module.exports = { createPost, getOwnPosts, updatePost, deactivatePost };
+const listAllPosts = async ({ search, type } = {}) => {
+  return prisma.post.findMany({
+    where: {
+      ...(type ? { type } : {}),
+      ...(search
+        ? {
+            OR: [
+              { title: { contains: search, mode: 'insensitive' } },
+              { business: { name: { contains: search, mode: 'insensitive' } } },
+            ],
+          }
+        : {}),
+    },
+    include: { business: { select: { id: true, name: true } } },
+    orderBy: { createdAt: 'desc' },
+    take: 200,
+  });
+};
+
+const toggleAdminPostStatus = async (id) => {
+  const post = await prisma.post.findUnique({ where: { id } });
+  if (!post) throw httpError('Post not found.', 404);
+
+  return prisma.post.update({
+    where: { id },
+    data: { isActive: !post.isActive },
+    include: { business: { select: { id: true, name: true } } },
+  });
+};
+
+module.exports = {
+  createPost,
+  getOwnPosts,
+  updatePost,
+  deactivatePost,
+  listAllPosts,
+  toggleAdminPostStatus,
+};
