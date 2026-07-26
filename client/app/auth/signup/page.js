@@ -3,11 +3,18 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import api from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
+import AuthBrandMark from "@/components/common/AuthBrandMark";
+import FieldError from "@/components/common/FieldError";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 
 const schema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -36,43 +43,64 @@ export default function SignupPage() {
       const response = await api.post("/auth/register", values);
       const { token, user } = response.data.data;
       login({ token, user });
-      router.push("/");
+      router.push("/feed");
     } catch (error) {
       setServerError(error.response?.data?.message || "Unable to create account.");
     }
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-zinc-950 px-6 py-10">
-      <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-md rounded-lg border border-zinc-800 bg-zinc-900 p-6">
-        <h1 className="text-2xl font-semibold text-white">Create user account</h1>
-        <p className="mt-2 text-sm text-zinc-400">Start discovering nearby local updates.</p>
+    <main className="dark flex min-h-screen items-center justify-center bg-background px-6 py-10 text-foreground">
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+        className="w-full max-w-md"
+      >
+        <AuthBrandMark />
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl">Create user account</CardTitle>
+            <CardDescription>Start discovering nearby local updates.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <Field label="Name" error={errors.name?.message} inputProps={register("name")} />
+              <Field label="Email" error={errors.email?.message} inputProps={register("email")} />
+              <Field label="Phone" error={errors.phone?.message} inputProps={register("phone")} />
+              <Field
+                label="Password"
+                type="password"
+                error={errors.password?.message}
+                inputProps={register("password")}
+              />
 
-        <Field label="Name" error={errors.name?.message} inputProps={register("name")} />
-        <Field label="Email" error={errors.email?.message} inputProps={register("email")} />
-        <Field label="Phone" error={errors.phone?.message} inputProps={register("phone")} />
-        <Field label="Password" type="password" error={errors.password?.message} inputProps={register("password")} />
+              <FieldError>{serverError}</FieldError>
 
-        {serverError && <p className="mt-4 text-sm text-red-300">{serverError}</p>}
+              <Button type="submit" disabled={isSubmitting} className="mt-6 h-11 w-full text-sm">
+                {isSubmitting ? "Creating account..." : "Create account"}
+              </Button>
 
-        <button disabled={isSubmitting} className="mt-6 h-11 w-full rounded-md bg-emerald-400 font-medium text-zinc-950 hover:bg-emerald-300 disabled:opacity-60">
-          {isSubmitting ? "Creating account..." : "Create account"}
-        </button>
-
-        <p className="mt-5 text-sm text-zinc-400">
-          Already registered? <Link className="text-zinc-100 hover:text-white" href="/auth/login">Log in</Link>
-        </p>
-      </form>
+              <p className="mt-5 text-sm text-muted-foreground">
+                Already registered?{" "}
+                <Link className="font-medium text-foreground hover:text-primary" href="/auth/login">
+                  Log in
+                </Link>
+              </p>
+            </form>
+          </CardContent>
+        </Card>
+      </motion.div>
     </main>
   );
 }
 
 function Field({ label, type = "text", error, inputProps }) {
   return (
-    <>
-      <label className="mt-4 block text-sm font-medium text-zinc-200">{label}</label>
-      <input type={type} className="mt-2 w-full rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-white outline-none focus:border-emerald-400" {...inputProps} />
-      {error && <p className="mt-1 text-sm text-red-300">{error}</p>}
-    </>
+    <div className="mt-4 first:mt-0">
+      <Label>{label}</Label>
+      <Input type={type} aria-invalid={!!error} {...inputProps} />
+      <FieldError>{error}</FieldError>
+    </div>
   );
 }

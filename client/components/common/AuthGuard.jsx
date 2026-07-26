@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { roleHome } from "@/lib/roleHome";
 
 export default function AuthGuard({ children, role }) {
   const router = useRouter();
@@ -15,7 +16,7 @@ export default function AuthGuard({ children, role }) {
       return;
     }
     if (role && user?.role !== role) {
-      router.replace("/");
+      router.replace(roleHome(user?.role));
     }
   }, [initialized, isAuthenticated, role, router, user?.role]);
 

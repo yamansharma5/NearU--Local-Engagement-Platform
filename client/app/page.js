@@ -1,61 +1,99 @@
+"use client";
+
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { Building2, MapPin, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+
+const STEPS = [
+  {
+    label: "Business registers",
+    detail: "Owners set up a profile with location, category, and contact details.",
+    icon: Building2,
+  },
+  {
+    label: "Creates a local post, offer, or event",
+    detail: "Updates go out instantly to everyone nearby.",
+    icon: Search,
+  },
+  {
+    label: "Nearby user discovers and sends an enquiry",
+    detail: "People browse the feed and map, then reach out directly.",
+    icon: MapPin,
+  },
+];
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-zinc-950">
+    <main className="dark min-h-screen bg-background text-foreground">
       <section className="mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-6">
-        <nav className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-lg font-semibold">
-            <MapPin className="h-5 w-5 text-emerald-400" />
+        <motion.nav
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          className="flex items-center justify-between"
+        >
+          <div className="flex items-center gap-2 text-lg font-semibold tracking-tight">
+            <MapPin className="h-5 w-5 text-primary" />
             nearU
           </div>
-          <Link className="text-sm text-zinc-300 hover:text-white" href="/auth/login">
+          <Button variant="ghost" render={<Link href="/auth/login" />}>
             Log in
-          </Link>
-        </nav>
+          </Button>
+        </motion.nav>
 
-        <div className="grid flex-1 items-center gap-10 py-14 md:grid-cols-[1.05fr_0.95fr]">
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
+          className="grid flex-1 items-center gap-10 py-14 md:grid-cols-[1.05fr_0.95fr]"
+        >
           <div className="max-w-2xl">
-            <p className="mb-4 text-sm font-medium uppercase tracking-[0.2em] text-emerald-300">
+            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
               Hyperlocal discovery MVP
             </p>
-            <h1 className="text-4xl font-semibold tracking-tight text-white sm:text-6xl">
+            <h1 className="text-4xl leading-[1.05] font-semibold tracking-tight text-balance sm:text-6xl lg:text-7xl">
               Find what nearby businesses are doing right now.
             </h1>
-            <p className="mt-6 max-w-xl text-lg leading-8 text-zinc-300">
+            <p className="mt-6 max-w-xl text-lg leading-8 text-muted-foreground">
               nearU connects people with local updates, offers, and events from businesses around
               them.
             </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link
-                className="inline-flex h-12 items-center justify-center rounded-md bg-emerald-400 px-5 font-medium text-zinc-950 hover:bg-emerald-300"
-                href="/auth/signup"
-              >
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+              <Button size="lg" className="h-12 px-6 text-sm" render={<Link href="/auth/signup" />}>
                 Create user account
-              </Link>
-              <Link
-                className="inline-flex h-12 items-center justify-center rounded-md border border-zinc-700 px-5 font-medium text-white hover:bg-zinc-900"
-                href="/auth/business/signup"
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="h-12 px-6 text-sm"
+                render={<Link href="/auth/business/signup" />}
               >
                 Register business
-              </Link>
+              </Button>
             </div>
           </div>
 
-          <div className="grid gap-4">
-            {[
-              ["Business registers", Building2],
-              ["Creates a local post, offer, or event", Search],
-              ["Nearby user discovers and sends an enquiry", MapPin],
-            ].map(([label, Icon]) => (
-              <div key={label} className="rounded-lg border border-zinc-800 bg-zinc-900/80 p-5">
-                <Icon className="mb-4 h-6 w-6 text-emerald-300" />
-                <p className="font-medium text-white">{label}</p>
-              </div>
+          <div className="grid gap-3">
+            {STEPS.map(({ label, detail, icon: Icon }, index) => (
+              <motion.div
+                key={label}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1], delay: 0.15 + index * 0.08 }}
+              >
+                <Card className="p-5 transition-colors hover:border-primary/30">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/15">
+                    <Icon className="h-5 w-5 text-primary" />
+                  </div>
+                  <p className="mt-4 font-medium tracking-tight text-foreground">{label}</p>
+                  <p className="mt-1.5 text-sm leading-6 text-muted-foreground">{detail}</p>
+                </Card>
+              </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
       </section>
     </main>
   );

@@ -4,11 +4,20 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { MapPin } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import api from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
+import { useCategories } from "@/hooks/useCategories";
+import AuthBrandMark from "@/components/common/AuthBrandMark";
+import FieldError from "@/components/common/FieldError";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 
 const schema = z.object({
   name: z.string().min(2, "Owner name is required"),
@@ -31,6 +40,7 @@ const schema = z.object({
 export default function BusinessSignupPage() {
   const router = useRouter();
   const login = useAuthStore((state) => state.login);
+  const { categories } = useCategories();
   const [serverError, setServerError] = useState("");
   const [locationStatus, setLocationStatus] = useState("");
   const [isLocating, setIsLocating] = useState(false);
@@ -87,57 +97,117 @@ export default function BusinessSignupPage() {
       const response = await api.post("/auth/business/register", values);
       const { token, user } = response.data.data;
       login({ token, user });
-      router.push("/");
+      router.push("/business");
     } catch (error) {
       setServerError(error.response?.data?.message || "Unable to register business.");
     }
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-zinc-950 px-6 py-10">
-      <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-2xl rounded-lg border border-zinc-800 bg-zinc-900 p-6">
-        <h1 className="text-2xl font-semibold text-white">Register business</h1>
-        <p className="mt-2 text-sm text-zinc-400">Create the owner account and business profile in one step.</p>
+    <main className="dark flex min-h-screen items-center justify-center bg-background px-6 py-10 text-foreground">
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+        className="w-full max-w-2xl"
+      >
+        <AuthBrandMark />
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl">Register business</CardTitle>
+            <CardDescription>Create the owner account and business profile in one step.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <div className="flex flex-col gap-3 rounded-lg border border-border bg-muted/40 p-3.5 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-sm text-muted-foreground">
+                  {locationStatus || "Location fields can be filled automatically."}
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={fillCurrentLocation}
+                  disabled={isLocating}
+                  className="h-10 shrink-0 gap-2 px-3 text-sm"
+                >
+                  <MapPin className="h-4 w-4 text-primary" />
+                  {isLocating ? "Fetching..." : "Use current location"}
+                </Button>
+              </div>
 
-        <div className="mt-5 flex flex-col gap-2 rounded-md border border-zinc-800 bg-zinc-950 p-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm text-zinc-300">{locationStatus || "Location fields can be filled automatically."}</p>
-          <button
-            type="button"
-            onClick={fillCurrentLocation}
-            disabled={isLocating}
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-zinc-700 px-3 text-sm font-medium text-zinc-100 hover:bg-zinc-900 disabled:opacity-60"
-          >
-            <MapPin className="h-4 w-4 text-emerald-300" />
-            {isLocating ? "Fetching..." : "Use current location"}
-          </button>
-        </div>
+              <div className="mt-5 grid gap-4 md:grid-cols-2">
+                <Field label="Owner name" error={errors.name?.message} inputProps={register("name")} />
+                <Field label="Email" error={errors.email?.message} inputProps={register("email")} />
+                <Field label="Owner phone" error={errors.phone?.message} inputProps={register("phone")} />
+                <Field
+                  label="Password"
+                  type="password"
+                  error={errors.password?.message}
+                  inputProps={register("password")}
+                />
+                <Field
+                  label="Business name"
+                  error={errors.businessName?.message}
+                  inputProps={register("businessName")}
+                />
+                <Field
+                  label="Business phone"
+                  error={errors.businessPhone?.message}
+                  inputProps={register("businessPhone")}
+                />
+                <div>
+                  <Label>Category</Label>
+                  <select
+                    className="h-11 w-full rounded-lg border border-input bg-background px-3.5 text-sm text-foreground outline-none transition-[color,box-shadow,border-color] focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/25"
+                    {...register("categoryId")}
+                  >
+                    <option value="">Choose category</option>
+                    {categories.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                  <FieldError>{errors.categoryId?.message}</FieldError>
+                </div>
+                <Field label="Address" error={errors.address?.message} inputProps={register("address")} />
+                <Field
+                  label="Latitude"
+                  type="number"
+                  step="any"
+                  error={errors.lat?.message}
+                  inputProps={register("lat")}
+                />
+                <Field
+                  label="Longitude"
+                  type="number"
+                  step="any"
+                  error={errors.lng?.message}
+                  inputProps={register("lng")}
+                />
+              </div>
 
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
-          <Field label="Owner name" error={errors.name?.message} inputProps={register("name")} />
-          <Field label="Email" error={errors.email?.message} inputProps={register("email")} />
-          <Field label="Owner phone" error={errors.phone?.message} inputProps={register("phone")} />
-          <Field label="Password" type="password" error={errors.password?.message} inputProps={register("password")} />
-          <Field label="Business name" error={errors.businessName?.message} inputProps={register("businessName")} />
-          <Field label="Business phone" error={errors.businessPhone?.message} inputProps={register("businessPhone")} />
-          <Field label="Category ID" error={errors.categoryId?.message} inputProps={register("categoryId")} />
-          <Field label="Address" error={errors.address?.message} inputProps={register("address")} />
-          <Field label="Latitude" type="number" step="any" error={errors.lat?.message} inputProps={register("lat")} />
-          <Field label="Longitude" type="number" step="any" error={errors.lng?.message} inputProps={register("lng")} />
-        </div>
+              <div className="mt-4">
+                <Label>Description</Label>
+                <Textarea {...register("description")} />
+              </div>
 
-        <label className="mt-4 block text-sm font-medium text-zinc-200">Description</label>
-        <textarea className="mt-2 min-h-24 w-full rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-white outline-none focus:border-emerald-400" {...register("description")} />
+              <FieldError>{serverError}</FieldError>
 
-        {serverError && <p className="mt-4 text-sm text-red-300">{serverError}</p>}
+              <Button type="submit" disabled={isSubmitting} className="mt-6 h-11 w-full text-sm">
+                {isSubmitting ? "Registering..." : "Register business"}
+              </Button>
 
-        <button disabled={isSubmitting} className="mt-6 h-11 w-full rounded-md bg-emerald-400 font-medium text-zinc-950 hover:bg-emerald-300 disabled:opacity-60">
-          {isSubmitting ? "Registering..." : "Register business"}
-        </button>
-
-        <p className="mt-5 text-sm text-zinc-400">
-          Already registered? <Link className="text-zinc-100 hover:text-white" href="/auth/login">Log in</Link>
-        </p>
-      </form>
+              <p className="mt-5 text-sm text-muted-foreground">
+                Already registered?{" "}
+                <Link className="font-medium text-foreground hover:text-primary" href="/auth/login">
+                  Log in
+                </Link>
+              </p>
+            </form>
+          </CardContent>
+        </Card>
+      </motion.div>
     </main>
   );
 }
@@ -145,9 +215,9 @@ export default function BusinessSignupPage() {
 function Field({ label, type = "text", step, error, inputProps }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-zinc-200">{label}</label>
-      <input type={type} step={step} className="mt-2 w-full rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-white outline-none focus:border-emerald-400" {...inputProps} />
-      {error && <p className="mt-1 text-sm text-red-300">{error}</p>}
+      <Label>{label}</Label>
+      <Input type={type} step={step} aria-invalid={!!error} {...inputProps} />
+      <FieldError>{error}</FieldError>
     </div>
   );
 }
