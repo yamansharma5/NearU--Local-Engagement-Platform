@@ -31,6 +31,7 @@ prisma/*.db-journal
 *.swp
 
 # Planning & architecture docs (local only)
+*.md
 PLAN.md
 PLAN (1).md
 PLAN_UPDATED_SIMPLIFIED.md
