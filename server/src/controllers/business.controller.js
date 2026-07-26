@@ -4,6 +4,7 @@ const {
   updateOwnBusiness,
   listAllBusinesses,
   toggleBusinessStatus,
+  toggleBusinessVerification,
 } = require('../services/business.service');
 const { success, error } = require('../utils/apiResponse');
 
@@ -57,4 +58,14 @@ const adminToggleStatus = async (req, res, next) => {
   }
 };
 
-module.exports = { getById, getMe, updateMe, adminList, adminToggleStatus };
+const adminToggleVerification = async (req, res, next) => {
+  try {
+    const business = await toggleBusinessVerification(req.params.id);
+    return success(res, { business }, 'Business verification updated.');
+  } catch (err) {
+    if (err.statusCode) return error(res, err.message, err.statusCode);
+    next(err);
+  }
+};
+
+module.exports = { getById, getMe, updateMe, adminList, adminToggleStatus, adminToggleVerification };
