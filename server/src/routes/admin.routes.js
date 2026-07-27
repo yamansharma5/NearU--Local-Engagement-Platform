@@ -6,6 +6,7 @@ const { list: listUsers, toggleStatus: toggleUserStatus } = require('../controll
 const {
   adminList: adminListBusinesses,
   adminToggleStatus: adminToggleBusinessStatus,
+  adminToggleVerification: adminToggleBusinessVerification,
 } = require('../controllers/business.controller');
 const {
   adminList: adminListPosts,
@@ -28,6 +29,7 @@ router.put('/users/:id/status', toggleUserStatus);
 
 router.get('/businesses', adminListBusinesses);
 router.put('/businesses/:id/status', adminToggleBusinessStatus);
+router.put('/businesses/:id/verify', adminToggleBusinessVerification);
 
 router.get('/posts', adminListPosts);
 router.put('/posts/:id/status', adminTogglePostStatus);

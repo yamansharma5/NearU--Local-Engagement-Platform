@@ -5,6 +5,8 @@ const { requireRole } = require('../middlewares/role.middleware');
 const { uploadSingleImage } = require('../middlewares/upload.middleware');
 
 const router = Router();
+
+router.post('/public', uploadSingleImage, uploadImage);
 router.post('/', authenticateToken, requireRole('BUSINESS'), uploadSingleImage, uploadImage);
 
 module.exports = router;
