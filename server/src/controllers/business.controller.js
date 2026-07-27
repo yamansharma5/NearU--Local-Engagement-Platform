@@ -3,6 +3,7 @@ const {
   getOwnBusiness,
   updateOwnBusiness,
   listAllBusinesses,
+  listNearbyBusinesses,
   toggleBusinessStatus,
   toggleBusinessVerification,
 } = require('../services/business.service');
@@ -48,6 +49,22 @@ const adminList = async (req, res, next) => {
   }
 };
 
+const nearby = async (req, res, next) => {
+  try {
+    const businesses = await listNearbyBusinesses({
+      lat: req.query.lat,
+      lng: req.query.lng,
+      radius: req.query.radius,
+      search: req.query.search,
+      categoryId: req.query.category,
+    });
+
+    return success(res, { businesses, count: businesses.length });
+  } catch (err) {
+    next(err);
+  }
+};
+
 const adminToggleStatus = async (req, res, next) => {
   try {
     const business = await toggleBusinessStatus(req.params.id);
@@ -68,4 +85,4 @@ const adminToggleVerification = async (req, res, next) => {
   }
 };
 
-module.exports = { getById, getMe, updateMe, adminList, adminToggleStatus, adminToggleVerification };
+module.exports = { getById, getMe, updateMe, nearby, adminList, adminToggleStatus, adminToggleVerification };

@@ -5,7 +5,7 @@ const updateBusinessSchema = z
     name: z.string().trim().min(2, 'Business name must be at least 2 characters').optional(),
     description: z.string().trim().max(2000, 'Description is too long').nullable().optional(),
     phone: z.string().trim().max(30, 'Phone number is too long').nullable().optional(),
-    logo: z.string().url('Logo must be a valid URL').nullable().optional(),
+    logo: z.string().url('Logo must be a valid uploaded image URL').nullable().optional(),
     categoryId: z.string().min(1, 'categoryId cannot be empty').nullable().optional(),
     address: z.string().trim().min(5, 'Address must be at least 5 characters').optional(),
     lat: z.coerce.number().min(-90).max(90).optional(),
