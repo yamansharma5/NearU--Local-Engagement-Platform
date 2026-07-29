@@ -14,6 +14,8 @@ const enquiryRoutes = require('./src/routes/enquiry.routes');
 const uploadRoutes = require('./src/routes/upload.routes');
 const adminRoutes = require('./src/routes/admin.routes');
 const { errorHandler } = require('./src/middlewares/errorHandler.middleware');
+const { error, success } = require('./src/utils/apiResponse');
+const { startOfferExpiryJob } = require('./src/jobs/expireOffers.job');
 
 const app = express();
 
@@ -51,7 +53,7 @@ app.use(
 app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 100,
+    max: env.nodeEnv === 'development' ? 1000 : 100,
     standardHeaders: true,
     legacyHeaders: false,
     message: { success: false, message: 'Too many requests, please try again later.' },
@@ -76,6 +78,15 @@ app.get('/', (_req, res) => {
   res.json({ success: true, message: 'NearU API is running' });
 });
 
+app.get('/api/health', async (_req, res, next) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    return success(res, { database: 'connected' }, 'API is healthy.');
+  } catch (err) {
+    next(err);
+  }
+});
+
 app.use('/api/auth', authLimiter, authRoutes);
 
 // ─── Phase 3: Discovery routes ────────────────────────────────────────────────
@@ -87,12 +98,14 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/admin', adminRoutes);
 
 // ─── Error Handler ────────────────────────────────────────────────────────────
+app.use((req, res) => error(res, `Route ${req.method} ${req.originalUrl} not found.`, 404));
 app.use(errorHandler);
 
 // ─── Start ───────────────────────────────────────────────────────────────────
 async function main() {
   await prisma.$connect();
   console.log('Database connected');
+  startOfferExpiryJob();
   app.listen(env.port, () => {
     console.log(`Server running on port ${env.port}`);
   });

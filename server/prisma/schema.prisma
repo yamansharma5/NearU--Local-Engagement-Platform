@@ -63,6 +63,7 @@ model Business {
   lat         Float
   lng         Float
   isActive    Boolean  @default(true)
+  isVerified  Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -90,6 +91,7 @@ model Post {
   isActive   Boolean  @default(true)
   discount   String?
   validUntil DateTime?
+  expiredAt  DateTime?
   eventDate  DateTime?
   venue      String?
   createdAt  DateTime @default(now())
@@ -101,6 +103,7 @@ model Post {
   @@index([businessId])
   @@index([type])
   @@index([isActive])
+  @@index([validUntil])
   @@index([lat, lng])
 }
 

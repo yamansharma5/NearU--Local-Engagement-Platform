@@ -30,7 +30,7 @@ const businessRegisterSchema = z.object({
   businessName: z.string().min(2, 'Business name must be at least 2 characters'),
   description: z.string().optional(),
   businessPhone: z.string().optional(),
-  logo: z.string().url('Logo must be a valid URL').optional().or(z.literal('')),
+  logo: z.string().url('Logo must be a valid uploaded image URL').optional().or(z.literal('')),
   categoryId: z.string().optional(),
   address: z.string().min(5, 'Address is required'),
   lat: z.coerce.number().min(-90, 'Latitude must be at least -90').max(90, 'Latitude must be at most 90'),

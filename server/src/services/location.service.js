@@ -38,6 +38,7 @@ const getNearbyPosts = async ({ lat, lng, radius = 5, type, categoryId }) => {
         p."isActive",
         p.discount,
         p."validUntil",
+        p."expiredAt",
         p."eventDate",
         p.venue,
         p."createdAt",
@@ -45,6 +46,7 @@ const getNearbyPosts = async ({ lat, lng, radius = 5, type, categoryId }) => {
         b.name    AS "businessName",
         b.logo    AS "businessLogo",
         b.address AS "businessAddress",
+        b."isVerified" AS "businessIsVerified",
         b."categoryId",
         (6371 * acos(
           LEAST(1.0,
@@ -57,6 +59,7 @@ const getNearbyPosts = async ({ lat, lng, radius = 5, type, categoryId }) => {
       JOIN "Business" b ON p."businessId" = b.id
       WHERE p."isActive" = true
       AND b."isActive" = true
+      AND (p."validUntil" IS NULL OR p."validUntil" > NOW())
       ${typeFilter}
       ${categoryFilter}
     ) sub
