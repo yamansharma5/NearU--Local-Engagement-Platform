@@ -3,20 +3,35 @@
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
 
+let cachedCategories = null;
+let inFlightCategoriesRequest = null;
+
 export function useCategories() {
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState(() => cachedCategories || []);
+  const [loading, setLoading] = useState(() => !cachedCategories);
 
   useEffect(() => {
     let cancelled = false;
 
-    api
-      .get("/categories")
-      .then((response) => {
-        if (!cancelled) setCategories(response.data.data.categories);
+    if (cachedCategories) {
+      return undefined;
+    }
+
+    if (!inFlightCategoriesRequest) {
+      inFlightCategoriesRequest = api.get("/categories").then((response) => response.data.data.categories);
+    }
+
+    inFlightCategoriesRequest
+      .then((result) => {
+        cachedCategories = result;
+        if (!cancelled) setCategories(result);
+      })
+      .catch(() => {
+        if (!cancelled) setCategories([]);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
+        inFlightCategoriesRequest = null;
       });
 
     return () => {

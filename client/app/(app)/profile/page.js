@@ -65,24 +65,35 @@ export default function ProfilePage() {
   };
 
   return (
-    <main className="mx-auto max-w-md px-4 pb-8 pt-6">
-      <header className="flex items-center gap-2">
-        <CircleUserRound className="h-5 w-5 text-primary" />
-        <h1 className="text-xl font-semibold tracking-tight">Your profile</h1>
+    <main className="mx-auto max-w-2xl px-4 pb-8 pt-6 sm:px-6 lg:px-8">
+      <header className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6">
+        <div className="flex items-start gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent">
+            <CircleUserRound className="h-5 w-5 text-accent-foreground" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight">Your profile</h1>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              Keep your contact details current so nearby businesses can reach you easily.
+            </p>
+          </div>
+        </div>
       </header>
 
-      <Card className="mt-5 p-5">
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Email</p>
-          <p className="mt-1 text-sm text-foreground/80">{user?.email}</p>
+      <Card className="mt-5 p-5 sm:p-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div className="rounded-2xl border border-dashed border-input bg-muted/30 p-4">
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Email</p>
+            <p className="mt-1 text-sm text-foreground/80">{user?.email}</p>
+          </div>
 
-          <div className="mt-5">
+          <div className="space-y-2">
             <Label>Name</Label>
             <Input aria-invalid={!!errors.name} {...register("name")} />
             <FieldError>{errors.name?.message}</FieldError>
           </div>
 
-          <div className="mt-4">
+          <div className="space-y-2">
             <Label>Phone</Label>
             <Input aria-invalid={!!errors.phone} {...register("phone")} />
             <FieldError>{errors.phone?.message}</FieldError>
@@ -95,14 +106,14 @@ export default function ProfilePage() {
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -4 }}
-                className="mt-4 text-sm font-medium text-primary"
+                className="text-sm font-medium text-primary"
               >
                 Profile updated.
               </motion.p>
             )}
           </AnimatePresence>
 
-          <Button type="submit" disabled={isSubmitting || !isDirty} className="mt-6 h-11 w-full text-sm">
+          <Button type="submit" disabled={isSubmitting || !isDirty} className="h-11 w-full text-sm">
             {isSubmitting ? "Saving..." : "Save changes"}
           </Button>
         </form>

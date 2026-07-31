@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { MapPin, Navigation, Phone } from "lucide-react";
+import { MapPin, Navigation, Phone, ShieldCheck } from "lucide-react";
 import api from "@/lib/api";
 import PostCard from "@/components/features/feed/PostCard";
 import EnquiryForm from "@/components/features/business/EnquiryForm";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 export default function BusinessProfilePage() {
   const { id } = useParams();
@@ -58,7 +59,15 @@ export default function BusinessProfilePage() {
             )}
           </div>
           <div>
-            <h1 className="text-lg font-semibold tracking-tight">{business.name}</h1>
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-lg font-semibold tracking-tight">{business.name}</h1>
+              {business.isVerified && (
+                <Badge>
+                  <ShieldCheck className="h-3 w-3" />
+                  Verified
+                </Badge>
+              )}
+            </div>
             <p className="text-sm text-muted-foreground">{business.category?.name || "Local business"}</p>
           </div>
         </div>
@@ -99,7 +108,12 @@ export default function BusinessProfilePage() {
           {business.posts.map((post) => (
             <PostCard
               key={post.id}
-              post={{ ...post, businessName: business.name, businessAddress: business.address }}
+              post={{
+                ...post,
+                businessName: business.name,
+                businessAddress: business.address,
+                businessIsVerified: business.isVerified,
+              }}
               categorySlug={business.category?.slug}
               linkable={false}
             />

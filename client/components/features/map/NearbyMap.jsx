@@ -8,6 +8,7 @@ import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import api from "@/lib/api";
 import { useLocationStore } from "@/store/locationStore";
 import { getPostTypeColor } from "@/lib/postTypeColors";
+import OfferCountdown from "@/components/features/feed/OfferCountdown";
 
 const PULSING_TYPES = new Set(["OFFER", "EVENT"]);
 
@@ -45,9 +46,14 @@ export default function NearbyMap() {
     if (lat == null || lng == null) return;
     let cancelled = false;
 
-    api.get("/posts/nearby", { params: { lat, lng, radius } }).then((response) => {
-      if (!cancelled) setPosts(response.data.data.posts);
-    });
+    api
+      .get("/posts/nearby", { params: { lat, lng, radius } })
+      .then((response) => {
+        if (!cancelled) setPosts(response.data.data.posts);
+      })
+      .catch(() => {
+        if (!cancelled) setPosts([]);
+      });
 
     return () => {
       cancelled = true;
@@ -82,6 +88,11 @@ export default function NearbyMap() {
                   </span>
                   <p className="mt-1 font-semibold text-foreground">{post.businessName}</p>
                   <p className="text-muted-foreground">{post.title}</p>
+                  {post.validUntil && (
+                    <div className="mt-1">
+                      <OfferCountdown validUntil={post.validUntil} />
+                    </div>
+                  )}
                   <Link href={`/business/${post.businessId}`} className="mt-1 inline-block font-medium text-primary underline underline-offset-2">
                     View business
                   </Link>
