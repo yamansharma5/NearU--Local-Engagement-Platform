@@ -6,7 +6,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
-import { Edit3, PlusCircle, Trash2, X } from "lucide-react";
+import { Edit3, PlusCircle, RotateCcw, Trash2, X } from "lucide-react";
 import api from "@/lib/api";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,25 +15,27 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import FieldError from "@/components/common/FieldError";
+import ImageUploadField from "@/components/common/ImageUploadField";
 
 const schema = z
   .object({
     type: z.enum(["UPDATE", "OFFER", "EVENT"]),
     title: z.string().min(2, "Title is required").max(150),
     content: z.string().min(10, "Content must be at least 10 characters").max(5000),
-    image: z.string().url("Enter a valid image URL").or(z.literal("")).optional(),
+    image: z.string().url("Upload a valid post image").or(z.literal("")).optional(),
     discount: z.string().optional(),
-    validUntil: z.string().optional(),
+    expiresInHours: z.enum(["1", "3", "6", "24", "48"]).optional(),
     eventDate: z.string().optional(),
     venue: z.string().optional(),
   })
   .superRefine((data, context) => {
+    if (data.type !== "EVENT" && !data.expiresInHours) {
+      context.addIssue({ code: "custom", path: ["expiresInHours"], message: "Choose when this post should expire" });
+    }
+
     if (data.type === "OFFER") {
       if (!data.discount) {
         context.addIssue({ code: "custom", path: ["discount"], message: "Discount is required for an offer" });
-      }
-      if (!data.validUntil) {
-        context.addIssue({ code: "custom", path: ["validUntil"], message: "Valid until date is required" });
       }
     }
     if (data.type === "EVENT") {
@@ -52,10 +54,18 @@ const DEFAULT_VALUES = {
   content: "",
   image: "",
   discount: "",
-  validUntil: "",
+  expiresInHours: "24",
   eventDate: "",
   venue: "",
 };
+
+const EXPIRY_OPTIONS = [
+  { value: "1", label: "1 hr" },
+  { value: "3", label: "3 hrs" },
+  { value: "6", label: "6 hrs" },
+  { value: "24", label: "24 hrs" },
+  { value: "48", label: "2 days" },
+];
 
 export default function BusinessPostsPage() {
   const [posts, setPosts] = useState([]);
@@ -68,11 +78,13 @@ export default function BusinessPostsPage() {
     register,
     handleSubmit,
     reset,
+    setValue,
     control,
     formState: { errors, isSubmitting },
   } = useForm({ resolver: zodResolver(schema), defaultValues: DEFAULT_VALUES });
 
   const type = useWatch({ control, name: "type" });
+  const imageValue = useWatch({ control, name: "image" });
 
   const refreshPosts = () => {
     setLoading(true);
@@ -105,9 +117,10 @@ export default function BusinessPostsPage() {
 
   const counts = useMemo(
     () => ({
-      all: posts.length,
-      offers: posts.filter((post) => post.type === "OFFER").length,
-      events: posts.filter((post) => post.type === "EVENT").length,
+      all: posts.filter((post) => isPostPubliclyActive(post)).length,
+      offers: posts.filter((post) => post.type === "OFFER" && isPostPubliclyActive(post)).length,
+      events: posts.filter((post) => post.type === "EVENT" && isPostPubliclyActive(post)).length,
+      expired: posts.filter((post) => isExpiredPost(post)).length,
     }),
     [posts]
   );
@@ -122,7 +135,7 @@ export default function BusinessPostsPage() {
       content: values.content,
       image: values.image || null,
       discount: values.type === "OFFER" ? values.discount : null,
-      validUntil: values.type === "OFFER" ? values.validUntil : null,
+      expiresInHours: values.type !== "EVENT" ? Number(values.expiresInHours) : undefined,
       eventDate: values.type === "EVENT" ? values.eventDate : null,
       venue: values.type === "EVENT" ? values.venue : null,
     };
@@ -143,7 +156,7 @@ export default function BusinessPostsPage() {
     }
   };
 
-  const startEditing = (post) => {
+  const startEditing = (post, { extend = false } = {}) => {
     setEditingPost(post);
     setSavedMessage("");
     setServerError("");
@@ -153,7 +166,7 @@ export default function BusinessPostsPage() {
       content: post.content || "",
       image: post.image || "",
       discount: post.discount || "",
-      validUntil: post.validUntil ? format(new Date(post.validUntil), "yyyy-MM-dd") : "",
+      expiresInHours: extend ? "24" : getClosestExpiryOption(post.validUntil),
       eventDate: post.eventDate ? toDatetimeLocal(post.eventDate) : "",
       venue: post.venue || "",
     });
@@ -191,7 +204,7 @@ export default function BusinessPostsPage() {
         <div className="grid grid-cols-3 gap-2 text-center sm:min-w-80">
           <MiniStat label="Active" value={counts.all} />
           <MiniStat label="Offers" value={counts.offers} />
-          <MiniStat label="Events" value={counts.events} />
+          <MiniStat label="Expired" value={counts.expired} />
         </div>
       </div>
 
@@ -239,10 +252,16 @@ export default function BusinessPostsPage() {
             <FieldError>{errors.content?.message}</FieldError>
           </div>
 
-          <Field label="Image URL" error={errors.image?.message} inputProps={register("image")} />
+          <ImageUploadField
+            label="Post image"
+            value={imageValue}
+            error={errors.image?.message}
+            previewAlt="Post preview"
+            onChange={(url) => setValue("image", url, { shouldDirty: true, shouldValidate: true })}
+          />
 
           <AnimatePresence initial={false}>
-            {type === "OFFER" && (
+            {type !== "EVENT" && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
@@ -250,12 +269,13 @@ export default function BusinessPostsPage() {
                 transition={{ duration: 0.18 }}
                 className="grid gap-4 overflow-hidden md:grid-cols-2"
               >
-                <Field label="Discount" error={errors.discount?.message} inputProps={register("discount")} />
-                <Field
-                  label="Valid until"
-                  type="date"
-                  error={errors.validUntil?.message}
-                  inputProps={register("validUntil")}
+                {type === "OFFER" && (
+                  <Field label="Discount" error={errors.discount?.message} inputProps={register("discount")} />
+                )}
+                <ExpiryField
+                  label={type === "OFFER" ? "Offer expires after" : "Post expires after"}
+                  error={errors.expiresInHours?.message}
+                  inputProps={register("expiresInHours")}
                 />
               </motion.div>
             )}
@@ -302,7 +322,7 @@ export default function BusinessPostsPage() {
 
       <Card className="overflow-hidden p-0">
         <div className="border-b border-border p-5">
-          <h2 className="font-semibold tracking-tight">Active posts</h2>
+          <h2 className="font-semibold tracking-tight">Your posts</h2>
         </div>
         {loading ? (
           <p className="p-5 text-sm text-muted-foreground">Loading posts...</p>
@@ -314,16 +334,29 @@ export default function BusinessPostsPage() {
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="secondary">{post.type}</Badge>
+                    <Badge variant={isExpiredPost(post) ? "destructive" : "secondary"}>
+                      {isExpiredPost(post) ? "Expired" : post.type}
+                    </Badge>
                     <span className="text-xs text-muted-foreground">
                       {format(new Date(post.createdAt), "d MMM yyyy")}
                     </span>
                   </div>
                   <h3 className="mt-2 font-semibold tracking-tight">{post.title}</h3>
+                  {post.image && (
+                    <div className="mt-3 overflow-hidden rounded-md border border-border bg-muted">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={post.image} alt={post.title} className="h-48 w-full object-cover" />
+                    </div>
+                  )}
                   <p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">{post.content}</p>
                   {post.type === "OFFER" && (
                     <p className="mt-2 text-sm font-semibold text-[#b0532a]">
-                      {post.discount} {post.validUntil && `until ${format(new Date(post.validUntil), "d MMM")}`}
+                      {post.discount} {post.validUntil && `until ${format(new Date(post.validUntil), "d MMM, h:mm a")}`}
+                    </p>
+                  )}
+                  {post.type !== "OFFER" && post.validUntil && (
+                    <p className="mt-2 text-sm font-semibold text-muted-foreground">
+                      Expires {format(new Date(post.validUntil), "d MMM, h:mm a")}
                     </p>
                   )}
                   {post.type === "EVENT" && (
@@ -334,6 +367,17 @@ export default function BusinessPostsPage() {
                   )}
                 </div>
                 <div className="flex shrink-0 gap-2">
+                  {isExpiredPost(post) && (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={() => startEditing(post, { extend: true })}
+                      className="h-9 gap-2 px-3 text-sm"
+                    >
+                      <RotateCcw className="h-4 w-4" />
+                      Extend
+                    </Button>
+                  )}
                   <Button
                     type="button"
                     variant="outline"
@@ -372,6 +416,26 @@ function Field({ label, type = "text", error, inputProps }) {
   );
 }
 
+function ExpiryField({ label, error, inputProps }) {
+  return (
+    <div>
+      <Label>{label}</Label>
+      <select
+        className="h-11 w-full rounded-lg border border-input bg-background px-3.5 text-sm text-foreground outline-none transition-[color,box-shadow,border-color] focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/25"
+        aria-invalid={!!error}
+        {...inputProps}
+      >
+        {EXPIRY_OPTIONS.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+      <FieldError>{error}</FieldError>
+    </div>
+  );
+}
+
 function MiniStat({ label, value }) {
   return (
     <Card className="p-3">
@@ -386,4 +450,25 @@ function toDatetimeLocal(value) {
   const offset = date.getTimezoneOffset();
   const localDate = new Date(date.getTime() - offset * 60 * 1000);
   return localDate.toISOString().slice(0, 16);
+}
+
+function getClosestExpiryOption(validUntil) {
+  if (!validUntil) return "24";
+
+  const hoursRemaining = (new Date(validUntil).getTime() - Date.now()) / (60 * 60 * 1000);
+  const nearest = EXPIRY_OPTIONS.reduce((closest, option) => {
+    return Math.abs(Number(option.value) - hoursRemaining) < Math.abs(Number(closest.value) - hoursRemaining)
+      ? option
+      : closest;
+  }, EXPIRY_OPTIONS[0]);
+
+  return nearest.value;
+}
+
+function isExpiredPost(post) {
+  return !!post.expiredAt || (post.validUntil && new Date(post.validUntil) <= new Date());
+}
+
+function isPostPubliclyActive(post) {
+  return post.isActive && !isExpiredPost(post);
 }

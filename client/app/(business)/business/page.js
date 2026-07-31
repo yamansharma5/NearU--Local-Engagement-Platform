@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
-import { ArrowRight, Inbox, PlusCircle, Store } from "lucide-react";
+import { ArrowRight, Inbox, PlusCircle, Store, TrendingUp } from "lucide-react";
 import api from "@/lib/api";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -58,22 +58,34 @@ export default function BusinessDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-wide text-primary">Business dashboard</p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-tight">{business?.name || "Your business"}</h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-            Manage local posts, keep your profile accurate, and reply to people nearby.
-          </p>
+      <Card className="border-white/10 bg-gradient-to-br from-card via-card to-primary/5 p-6 shadow-sm">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-2xl space-y-3">
+            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+              <TrendingUp className="h-3.5 w-3.5" />
+              Business dashboard
+            </div>
+            <div>
+              <h1 className="text-3xl font-semibold tracking-tight">{business?.name || "Your business"}</h1>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+                Keep your profile accurate, publish local updates, and respond to nearby customers from one place.
+              </p>
+            </div>
+          </div>
+          <Button className="h-11 gap-2 px-4 text-sm" render={<Link href="/business/posts" />}>
+            <PlusCircle className="h-4 w-4" />
+            New post
+          </Button>
         </div>
-        <Button className="h-11 gap-2 px-4 text-sm" render={<Link href="/business/posts" />}>
-          <PlusCircle className="h-4 w-4" />
-          New post
-        </Button>
-      </div>
+      </Card>
 
       <section className="grid gap-4 sm:grid-cols-3">
-        <StatCard label="Active posts" value={posts.length} icon={PlusCircle} note="Shown in nearby feed and map" />
+        <StatCard
+          label="Active posts"
+          value={posts.filter((post) => post.isActive).length}
+          icon={PlusCircle}
+          note="Visible in the feed and map"
+        />
         <StatCard label="Pending enquiries" value={pendingCount} icon={Inbox} note="Waiting for your reply" />
         <StatCard label="Category" value={business?.category?.name || "Not set"} icon={Store} note="Used in filters" />
       </section>
@@ -114,6 +126,7 @@ export default function BusinessDashboardPage() {
             ))
           )}
         </Panel>
+
       </section>
     </div>
   );
@@ -135,7 +148,7 @@ function Panel({ title, href, children }) {
 
 function EmptyState({ text, action, href }) {
   return (
-    <div className="rounded-md border border-dashed border-input p-5 text-center">
+    <div className="rounded-2xl border border-dashed border-input p-5 text-center">
       <p className="text-sm text-muted-foreground">{text}</p>
       <Link href={href} className="mt-3 inline-flex text-sm font-semibold text-primary">
         {action}

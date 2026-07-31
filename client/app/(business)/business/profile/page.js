@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { LocateFixed, Save } from "lucide-react";
@@ -14,12 +14,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import FieldError from "@/components/common/FieldError";
+import ImageUploadField from "@/components/common/ImageUploadField";
 
 const schema = z.object({
   name: z.string().min(2, "Business name is required"),
   description: z.string().max(2000).optional(),
   phone: z.string().optional(),
-  logo: z.string().url("Enter a valid image URL").or(z.literal("")).optional(),
+  logo: z.string().url("Upload a valid logo image").or(z.literal("")).optional(),
   categoryId: z.string().optional(),
   address: z.string().min(5, "Address is required"),
   lat: z.coerce.number().min(-90).max(90),
@@ -38,6 +39,7 @@ export default function BusinessProfilePage() {
     handleSubmit,
     reset,
     setValue,
+    control,
     formState: { errors, isSubmitting, isDirty },
   } = useForm({
     resolver: zodResolver(schema),
@@ -52,6 +54,7 @@ export default function BusinessProfilePage() {
       lng: 0,
     },
   });
+  const logoValue = useWatch({ control, name: "logo" });
 
   useEffect(() => {
     let cancelled = false;
@@ -155,7 +158,13 @@ export default function BusinessProfilePage() {
           <div className="grid gap-4 md:grid-cols-2">
             <Field label="Business name" error={errors.name?.message} inputProps={register("name")} />
             <Field label="Phone" error={errors.phone?.message} inputProps={register("phone")} />
-            <Field label="Logo URL" error={errors.logo?.message} inputProps={register("logo")} />
+            <ImageUploadField
+              label="Business logo"
+              value={logoValue}
+              error={errors.logo?.message}
+              previewAlt="Business logo preview"
+              onChange={(url) => setValue("logo", url, { shouldDirty: true, shouldValidate: true })}
+            />
             <div>
               <Label>Category</Label>
               <select
