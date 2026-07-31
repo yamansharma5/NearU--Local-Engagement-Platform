@@ -15,8 +15,8 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed inset-x-0 bottom-4 z-40 flex justify-center px-4">
-      <div className="flex items-center gap-1 rounded-full border border-border bg-card/95 p-1.5 shadow-lg shadow-black/10 backdrop-blur">
+    <nav className="fixed inset-x-0 bottom-4 z-40 flex justify-center px-4 sm:hidden">
+      <div className="flex items-center gap-1 rounded-full border border-border/80 bg-card/90 p-1.5 shadow-xl shadow-black/10 backdrop-blur">
         {ITEMS.map(({ href, label, icon: Icon }) => {
           const active = pathname === href || pathname.startsWith(`${href}/`);
           return (
@@ -30,7 +30,7 @@ export default function BottomNav() {
               {active && (
                 <NavPillHighlight
                   layoutId="bottom-nav-active"
-                  className="absolute inset-0 rounded-full bg-primary"
+                  className="absolute inset-0 rounded-full bg-primary shadow-lg shadow-primary/20"
                 />
               )}
               <Icon className="relative z-10 h-4 w-4" />
