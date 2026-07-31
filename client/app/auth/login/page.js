@@ -45,54 +45,90 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="dark flex min-h-screen items-center justify-center bg-background px-6 py-10 text-foreground">
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-md"
-      >
-        <AuthBrandMark />
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl">Log in</CardTitle>
-            <CardDescription>Use your user or business account.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" aria-invalid={!!errors.email} {...register("email")} />
-              <FieldError>{errors.email?.message}</FieldError>
+    <main className="dark min-h-screen bg-background px-6 py-8 text-foreground sm:px-8 lg:px-10">
+      <div className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-6xl items-center gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+        <motion.aside
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          className="hidden flex-col justify-between rounded-[2rem] border border-white/10 bg-white/[0.04] p-8 lg:flex"
+        >
+          <div>
+            <AuthBrandMark />
+            <p className="max-w-md text-3xl font-semibold tracking-tight text-balance text-white">
+              Log in to follow what is happening nearby.
+            </p>
+            <p className="mt-4 max-w-md text-base leading-7 text-white/70">
+              Check the feed, switch to the map, and respond to local updates or enquiries without distraction.
+            </p>
+          </div>
 
-              <div className="mt-4">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  aria-invalid={!!errors.password}
-                  {...register("password")}
-                />
-                <FieldError>{errors.password?.message}</FieldError>
-              </div>
+          <div className="grid gap-3">
+            <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-white/70">
+              One account for people, business owners, and role-based access.
+            </div>
+            <div className="flex flex-wrap gap-2 text-xs text-white/60">
+              <span className="rounded-full border border-white/10 px-3 py-1">Nearby feed</span>
+              <span className="rounded-full border border-white/10 px-3 py-1">Map view</span>
+              <span className="rounded-full border border-white/10 px-3 py-1">Business inbox</span>
+            </div>
+          </div>
+        </motion.aside>
 
-              <FieldError>{serverError}</FieldError>
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full max-w-md justify-self-center lg:justify-self-end"
+        >
+          <div className="lg:hidden">
+            <AuthBrandMark />
+          </div>
+          <Card className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20">
+            <CardHeader className="space-y-2">
+              <CardTitle className="text-2xl text-white">Log in</CardTitle>
+              <CardDescription className="text-white/70">
+                Access your nearby feed, map, or business dashboard.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" aria-invalid={!!errors.email} {...register("email")} />
+                  <FieldError>{errors.email?.message}</FieldError>
+                </div>
 
-              <Button type="submit" disabled={isSubmitting} className="mt-6 h-11 w-full text-sm">
-                {isSubmitting ? "Logging in..." : "Log in"}
-              </Button>
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    aria-invalid={!!errors.password}
+                    {...register("password")}
+                  />
+                  <FieldError>{errors.password?.message}</FieldError>
+                </div>
 
-              <div className="mt-5 flex justify-between text-sm text-muted-foreground">
-                <Link className="hover:text-foreground" href="/auth/signup">
-                  User signup
-                </Link>
-                <Link className="hover:text-foreground" href="/auth/business/signup">
-                  Business signup
-                </Link>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-      </motion.div>
+                <FieldError>{serverError}</FieldError>
+
+                <Button type="submit" disabled={isSubmitting} className="h-11 w-full text-sm">
+                  {isSubmitting ? "Logging in..." : "Log in"}
+                </Button>
+
+                <div className="flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:justify-between">
+                  <Link className="hover:text-foreground" href="/auth/signup">
+                    Create a user account
+                  </Link>
+                  <Link className="hover:text-foreground" href="/auth/business/signup">
+                    Register a business
+                  </Link>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
     </main>
   );
 }

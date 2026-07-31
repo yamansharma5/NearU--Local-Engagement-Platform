@@ -50,54 +50,81 @@ export default function SignupPage() {
   };
 
   return (
-    <main className="dark flex min-h-screen items-center justify-center bg-background px-6 py-10 text-foreground">
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-md"
-      >
-        <AuthBrandMark />
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl">Create user account</CardTitle>
-            <CardDescription>Start discovering nearby local updates.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <Field label="Name" error={errors.name?.message} inputProps={register("name")} />
-              <Field label="Email" error={errors.email?.message} inputProps={register("email")} />
-              <Field label="Phone" error={errors.phone?.message} inputProps={register("phone")} />
-              <Field
-                label="Password"
-                type="password"
-                error={errors.password?.message}
-                inputProps={register("password")}
-              />
+    <main className="dark min-h-screen bg-background px-6 py-8 text-foreground sm:px-8 lg:px-10">
+      <div className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-6xl items-center gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+        <motion.aside
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          className="hidden flex-col justify-between rounded-[2rem] border border-white/10 bg-white/[0.04] p-8 lg:flex"
+        >
+          <div>
+            <AuthBrandMark />
+            <p className="max-w-md text-3xl font-semibold tracking-tight text-balance text-white">
+              Create one account to discover what is nearby.
+            </p>
+            <p className="mt-4 max-w-md text-base leading-7 text-white/70">
+              Browse local offers and events, save interesting places, and contact businesses directly when something matters.
+            </p>
+          </div>
 
-              <FieldError>{serverError}</FieldError>
+          <div className="flex flex-wrap gap-2 text-xs text-white/60">
+            <span className="rounded-full border border-white/10 px-3 py-1">Nearby feed</span>
+            <span className="rounded-full border border-white/10 px-3 py-1">Map view</span>
+            <span className="rounded-full border border-white/10 px-3 py-1">Saved items</span>
+          </div>
+        </motion.aside>
 
-              <Button type="submit" disabled={isSubmitting} className="mt-6 h-11 w-full text-sm">
-                {isSubmitting ? "Creating account..." : "Create account"}
-              </Button>
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full max-w-md justify-self-center lg:justify-self-end"
+        >
+          <div className="lg:hidden">
+            <AuthBrandMark />
+          </div>
+          <Card className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20">
+            <CardHeader className="space-y-2">
+              <CardTitle className="text-2xl text-white">Create user account</CardTitle>
+              <CardDescription className="text-white/70">Start discovering nearby local updates.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                <Field label="Name" error={errors.name?.message} inputProps={register("name")} />
+                <Field label="Email" error={errors.email?.message} inputProps={register("email")} />
+                <Field label="Phone" error={errors.phone?.message} inputProps={register("phone")} />
+                <Field
+                  label="Password"
+                  type="password"
+                  error={errors.password?.message}
+                  inputProps={register("password")}
+                />
 
-              <p className="mt-5 text-sm text-muted-foreground">
-                Already registered?{" "}
-                <Link className="font-medium text-foreground hover:text-primary" href="/auth/login">
-                  Log in
-                </Link>
-              </p>
-            </form>
-          </CardContent>
-        </Card>
-      </motion.div>
+                <FieldError>{serverError}</FieldError>
+
+                <Button type="submit" disabled={isSubmitting} className="h-11 w-full text-sm">
+                  {isSubmitting ? "Creating account..." : "Create account"}
+                </Button>
+
+                <p className="text-sm text-muted-foreground">
+                  Already registered?{" "}
+                  <Link className="font-medium text-foreground hover:text-primary" href="/auth/login">
+                    Log in
+                  </Link>
+                </p>
+              </form>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
     </main>
   );
 }
 
 function Field({ label, type = "text", error, inputProps }) {
   return (
-    <div className="mt-4 first:mt-0">
+    <div className="space-y-2">
       <Label>{label}</Label>
       <Input type={type} aria-invalid={!!error} {...inputProps} />
       <FieldError>{error}</FieldError>
