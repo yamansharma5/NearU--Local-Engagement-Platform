@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FileText, Inbox, Store, Tags, Users } from "lucide-react";
+import { FileText, Inbox, ShieldAlert, Store, Tags, Users } from "lucide-react";
 import api from "@/lib/api";
+import { Card } from "@/components/ui/card";
 import StatCard from "@/components/common/StatCard";
 
 export default function AdminDashboardPage() {
@@ -32,13 +33,18 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <p className="text-sm font-semibold uppercase tracking-wide text-primary">Admin</p>
-        <h1 className="mt-1 text-3xl font-semibold tracking-tight">Overview</h1>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-          Moderate users, businesses, posts, and categories across nearU.
-        </p>
-      </div>
+      <Card className="border-white/10 bg-linear-to-br from-card via-card to-accent/30 p-6 shadow-sm">
+        <div className="flex flex-col gap-3 lg:max-w-3xl">
+          <div className="inline-flex items-center gap-2 rounded-full bg-destructive/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-destructive">
+            <ShieldAlert className="h-3.5 w-3.5" />
+            Admin overview
+          </div>
+          <h1 className="text-3xl font-semibold tracking-tight">Keep the platform clean and trustworthy.</h1>
+          <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
+            Moderate users, businesses, posts, and categories across nearU from a single control surface.
+          </p>
+        </div>
+      </Card>
 
       {loading && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -56,7 +62,7 @@ export default function AdminDashboardPage() {
 
       {!loading && !error && stats && (
         <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <StatCard label="Users" value={stats.totalUsers} icon={Users} note="Regular + business accounts" />
+          <StatCard label="Users" value={stats.totalUsers} icon={Users} note="Regular and business accounts" />
           <StatCard label="Businesses" value={stats.totalBusinesses} icon={Store} note="Registered businesses" />
           <StatCard label="Active posts" value={stats.activePosts} icon={FileText} note="Visible in feed and map" />
           <StatCard

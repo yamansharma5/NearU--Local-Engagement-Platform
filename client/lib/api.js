@@ -1,6 +1,7 @@
 "use client";
 
 import axios from "axios";
+import { toast } from "sonner";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
@@ -22,8 +23,14 @@ export function setAuthToken(token) {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 && typeof window !== "undefined") {
+    if ((error.response?.status === 401 || error.response?.status === 403) && typeof window !== "undefined") {
+      const message =
+        error.response.status === 403
+          ? error.response.data?.message || "This account has been suspended."
+          : "Please log in again.";
       localStorage.removeItem("nearu_auth");
+      localStorage.removeItem("nearu_location");
+      toast.error(message);
       if (!window.location.pathname.startsWith("/auth")) {
         window.location.href = "/auth/login";
       }

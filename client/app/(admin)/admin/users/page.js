@@ -23,8 +23,9 @@ export default function AdminUsersPage() {
     api
       .get("/admin/users", { params: { search: debouncedSearch || undefined } })
       .then((response) => {
-        if (!cancelled) setUsers(response.data.data.users);
-        if (!cancelled) setError("");
+        if (cancelled) return;
+        setUsers(response.data.data.users);
+        setError("");
       })
       .catch(() => {
         if (!cancelled) setError("Unable to load users.");

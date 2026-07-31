@@ -26,8 +26,9 @@ export default function AdminPostsPage() {
     api
       .get("/admin/posts", { params: { search: debouncedSearch || undefined, type: type || undefined } })
       .then((response) => {
-        if (!cancelled) setPosts(response.data.data.posts);
-        if (!cancelled) setError("");
+        if (cancelled) return;
+        setPosts(response.data.data.posts);
+        setError("");
       })
       .catch(() => {
         if (!cancelled) setError("Unable to load posts.");

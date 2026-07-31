@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ArrowUpRight, Search, Store } from "lucide-react";
+import { ArrowUpRight, Search, ShieldCheck, Store } from "lucide-react";
 import api from "@/lib/api";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Card } from "@/components/ui/card";
@@ -17,6 +17,7 @@ export default function AdminBusinessesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [updatingId, setUpdatingId] = useState("");
+  const [verifyingId, setVerifyingId] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -24,8 +25,9 @@ export default function AdminBusinessesPage() {
     api
       .get("/admin/businesses", { params: { search: debouncedSearch || undefined } })
       .then((response) => {
-        if (!cancelled) setBusinesses(response.data.data.businesses);
-        if (!cancelled) setError("");
+        if (cancelled) return;
+        setBusinesses(response.data.data.businesses);
+        setError("");
       })
       .catch(() => {
         if (!cancelled) setError("Unable to load businesses.");
@@ -50,6 +52,20 @@ export default function AdminBusinessesPage() {
       setError(err.response?.data?.message || "Unable to update business.");
     } finally {
       setUpdatingId("");
+    }
+  };
+
+  const toggleVerification = async (business) => {
+    setVerifyingId(business.id);
+    setError("");
+    try {
+      const response = await api.put(`/admin/businesses/${business.id}/verify`);
+      const updated = response.data.data.business;
+      setBusinesses((current) => current.map((item) => (item.id === updated.id ? updated : item)));
+    } catch (err) {
+      setError(err.response?.data?.message || "Unable to update verification.");
+    } finally {
+      setVerifyingId("");
     }
   };
 
@@ -100,6 +116,12 @@ export default function AdminBusinessesPage() {
                   <Badge variant={business.isActive ? "success" : "destructive"}>
                     {business.isActive ? "Active" : "Deactivated"}
                   </Badge>
+                  {business.isVerified && (
+                    <Badge>
+                      <ShieldCheck className="h-3 w-3" />
+                      Verified
+                    </Badge>
+                  )}
                 </div>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {business.owner?.name} · {business.owner?.email}
@@ -114,6 +136,16 @@ export default function AdminBusinessesPage() {
                   render={<Link href={`/business/${business.id}`} target="_blank" />}
                 >
                   View <ArrowUpRight className="h-3.5 w-3.5" />
+                </Button>
+                <Button
+                  type="button"
+                  variant={business.isVerified ? "secondary" : "outline"}
+                  onClick={() => toggleVerification(business)}
+                  disabled={verifyingId === business.id}
+                  className="h-9 gap-2 px-3 text-sm"
+                >
+                  <ShieldCheck className="h-4 w-4" />
+                  {verifyingId === business.id ? "Updating..." : business.isVerified ? "Unverify" : "Verify"}
                 </Button>
                 <Button
                   type="button"
