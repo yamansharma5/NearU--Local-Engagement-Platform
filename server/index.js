@@ -19,12 +19,16 @@ const { startOfferExpiryJob } = require('./src/jobs/expireOffers.job');
 
 const app = express();
 
+app.set('trust proxy', 1);
+
 const normalizeOrigin = (origin) => {
   if (!origin) return origin;
   return origin.replace(/\/+$/, '');
 };
 
 const allowedOrigins = new Set([
+  'https://alleyo.in',
+  'https://www.alleyo.in',
   ...env.clientUrls.map(normalizeOrigin),
   'http://localhost:3000',
   'http://127.0.0.1:3000',
