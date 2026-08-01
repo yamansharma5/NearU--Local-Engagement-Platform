@@ -19,18 +19,25 @@ const { startOfferExpiryJob } = require('./src/jobs/expireOffers.job');
 
 const app = express();
 
+const normalizeOrigin = (origin) => {
+  if (!origin) return origin;
+  return origin.replace(/\/+$/, '');
+};
+
+const allowedOrigins = new Set([
+  ...env.clientUrls.map(normalizeOrigin),
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+]);
+
 // ─── Security ────────────────────────────────────────────────────────────────
 app.use(helmet());
 app.use(
   cors({
     origin(origin, callback) {
-      const allowedOrigins = new Set([
-        env.clientUrl,
-        'http://localhost:3000',
-        'http://127.0.0.1:3000',
-      ]);
+      const normalizedOrigin = normalizeOrigin(origin);
 
-      if (!origin || allowedOrigins.has(origin)) {
+      if (!origin || allowedOrigins.has(normalizedOrigin)) {
         callback(null, true);
         return;
       }
