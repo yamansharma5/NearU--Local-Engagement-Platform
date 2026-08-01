@@ -49,6 +49,26 @@ app.use(
   })
 );
 
+//for render 
+app.get('/api/health', async (_req, res, next) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.set('Cache-Control', 'no-store');
+    return success(
+      res,
+      {
+        status: 'ok',
+        database: 'connected',
+        uptime: process.uptime(),
+        timestamp: new Date().toISOString(),
+      },
+      'API is healthy.'
+    );
+  } catch (err) {
+    next(err);
+  }
+});
+
 // General rate limit
 app.use(
   rateLimit({
@@ -76,15 +96,6 @@ app.use(express.urlencoded({ extended: true }));
 // ─── Routes ──────────────────────────────────────────────────────────────────
 app.get('/', (_req, res) => {
   res.json({ success: true, message: 'NearU API is running' });
-});
-
-app.get('/api/health', async (_req, res, next) => {
-  try {
-    await prisma.$queryRaw`SELECT 1`;
-    return success(res, { database: 'connected' }, 'API is healthy.');
-  } catch (err) {
-    next(err);
-  }
 });
 
 app.use('/api/auth', authLimiter, authRoutes);

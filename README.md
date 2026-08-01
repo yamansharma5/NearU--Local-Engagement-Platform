@@ -80,6 +80,20 @@ NearU is in MVP stage. The main user, business, and admin flows are implemented,
 
 ---
 
+## Render cold start prevention
+
+The backend exposes `GET /api/health` for uptime checks. It verifies the API process and database connection, and returns a small JSON response with `status`, `database`, `uptime`, and `timestamp`.
+
+For the free Render tier, create a free cron-job.org job that pings:
+
+```text
+https://YOUR_RENDER_SERVICE.onrender.com/api/health
+```
+
+Set the schedule to every 10 minutes. This keeps the Render web service warm during demo windows and avoids the first visitor waiting through a cold start.
+
+---
+
 ## Future scope
 
 NearU can grow from a discovery MVP into a complete hyperlocal business platform.
@@ -121,4 +135,3 @@ The platform can scale gradually as users, businesses, posts, and location queri
 5. **Payments and subscriptions**
 
    Razorpay payment events should be processed through verified webhooks. Payment, subscription, promotion, refund, and invoice records should be stored separately so business billing stays reliable and auditable.
-
