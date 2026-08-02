@@ -109,32 +109,32 @@ export default function BusinessSignupPage() {
   };
 
   return (
-    <main className="dark min-h-screen bg-background px-6 py-8 text-foreground sm:px-8 lg:px-10">
+    <main className="min-h-screen bg-white px-6 py-8 text-foreground sm:px-8 lg:px-10">
       <div className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-7xl items-center gap-8 lg:grid-cols-[0.88fr_1.12fr]">
         <motion.aside
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-          className="hidden flex-col justify-between rounded-[2rem] border border-white/10 bg-white/[0.04] p-8 lg:flex"
+          className="hidden flex-col justify-between rounded-[2rem] border border-border bg-neutral-50/70 p-8 lg:flex"
         >
           <div>
             <AuthBrandMark />
-            <p className="max-w-md text-3xl font-semibold tracking-tight text-balance text-white">
+            <p className="max-w-md text-3xl font-semibold tracking-tight text-balance text-foreground">
               Put your business on the map with one clean profile.
             </p>
-            <p className="mt-4 max-w-md text-base leading-7 text-white/70">
+            <p className="mt-4 max-w-md text-base leading-7 text-muted-foreground">
               Reach nearby people with simple posts, a clear category, and a direct path to enquiries.
             </p>
           </div>
 
           <div className="grid gap-3">
-            <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-white/70">
+            <div className="rounded-2xl border border-border bg-white p-4 text-sm text-muted-foreground">
               Built for fast setup: owner details, business profile, and location in one flow.
             </div>
-            <div className="flex flex-wrap gap-2 text-xs text-white/60">
-              <span className="rounded-full border border-white/10 px-3 py-1">Profile</span>
-              <span className="rounded-full border border-white/10 px-3 py-1">Location</span>
-              <span className="rounded-full border border-white/10 px-3 py-1">Posts</span>
+            <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+              <span className="rounded-full border border-border bg-white px-3 py-1">Profile</span>
+              <span className="rounded-full border border-border bg-white px-3 py-1">Location</span>
+              <span className="rounded-full border border-border bg-white px-3 py-1">Posts</span>
             </div>
           </div>
         </motion.aside>
@@ -148,10 +148,10 @@ export default function BusinessSignupPage() {
           <div className="lg:hidden">
             <AuthBrandMark />
           </div>
-          <Card className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20">
+          <Card className="border-border bg-white shadow-lg shadow-black/3">
             <CardHeader className="space-y-2">
-              <CardTitle className="text-2xl text-white">Register business</CardTitle>
-              <CardDescription className="text-white/70">
+              <CardTitle className="text-2xl text-foreground">Register business</CardTitle>
+              <CardDescription className="text-muted-foreground">
                 Create the owner account and business profile in one step.
               </CardDescription>
             </CardHeader>

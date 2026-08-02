@@ -41,7 +41,7 @@ export default function AdminDashboardPage() {
           </div>
           <h1 className="text-3xl font-semibold tracking-tight">Keep the platform clean and trustworthy.</h1>
           <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
-            Moderate users, businesses, posts, and categories across nearU from a single control surface.
+            Moderate users, businesses, posts, and categories across Alleyo from a single control surface.
           </p>
         </div>
       </Card>

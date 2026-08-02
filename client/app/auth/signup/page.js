@@ -50,28 +50,28 @@ export default function SignupPage() {
   };
 
   return (
-    <main className="dark min-h-screen bg-background px-6 py-8 text-foreground sm:px-8 lg:px-10">
+    <main className="min-h-screen bg-white px-6 py-8 text-foreground sm:px-8 lg:px-10">
       <div className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-6xl items-center gap-8 lg:grid-cols-[0.9fr_1.1fr]">
         <motion.aside
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-          className="hidden flex-col justify-between rounded-[2rem] border border-white/10 bg-white/[0.04] p-8 lg:flex"
+          className="hidden flex-col justify-between rounded-[2rem] border border-border bg-neutral-50/70 p-8 lg:flex"
         >
           <div>
             <AuthBrandMark />
-            <p className="max-w-md text-3xl font-semibold tracking-tight text-balance text-white">
+            <p className="max-w-md text-3xl font-semibold tracking-tight text-balance text-foreground">
               Create one account to discover what is nearby.
             </p>
-            <p className="mt-4 max-w-md text-base leading-7 text-white/70">
+            <p className="mt-4 max-w-md text-base leading-7 text-muted-foreground">
               Browse local offers and events, save interesting places, and contact businesses directly when something matters.
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-2 text-xs text-white/60">
-            <span className="rounded-full border border-white/10 px-3 py-1">Nearby feed</span>
-            <span className="rounded-full border border-white/10 px-3 py-1">Map view</span>
-            <span className="rounded-full border border-white/10 px-3 py-1">Saved items</span>
+          <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+            <span className="rounded-full border border-border bg-white px-3 py-1">Nearby feed</span>
+            <span className="rounded-full border border-border bg-white px-3 py-1">Map view</span>
+            <span className="rounded-full border border-border bg-white px-3 py-1">Saved items</span>
           </div>
         </motion.aside>
 
@@ -84,10 +84,10 @@ export default function SignupPage() {
           <div className="lg:hidden">
             <AuthBrandMark />
           </div>
-          <Card className="border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20">
+          <Card className="border-border bg-white shadow-lg shadow-black/3">
             <CardHeader className="space-y-2">
-              <CardTitle className="text-2xl text-white">Create user account</CardTitle>
-              <CardDescription className="text-white/70">Start discovering nearby local updates.</CardDescription>
+              <CardTitle className="text-2xl text-foreground">Create user account</CardTitle>
+              <CardDescription className="text-muted-foreground">Start discovering nearby local updates.</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MapPin } from "lucide-react";
+import Image from "next/image";
 
 export default function AuthBrandMark() {
   return (
@@ -7,11 +7,11 @@ export default function AuthBrandMark() {
       href="/"
       className="mb-8 flex items-center justify-center gap-3 text-lg font-semibold tracking-tight text-foreground"
     >
-      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/20">
-        <MapPin className="h-4 w-4" />
+      <span className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl">
+        <Image src="/logo-mark.png" alt="Alleyo" fill sizes="40px" className="object-contain" priority />
       </span>
       <span className="flex flex-col leading-tight">
-        <span>nearU</span>
+        <span>Alleyo</span>
         <span className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
           Local discovery
         </span>

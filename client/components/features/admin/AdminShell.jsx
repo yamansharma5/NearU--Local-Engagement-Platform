@@ -30,7 +30,7 @@ export default function AdminShell({ children }) {
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 border-r border-sidebar-border bg-sidebar p-4 text-sidebar-foreground lg:block">
         <Link href="/admin" className="flex items-center gap-2 px-2 py-2 text-lg font-semibold tracking-tight">
           <MapPin className="h-5 w-5 text-sidebar-primary" />
-          nearU <span className="text-xs font-medium text-sidebar-foreground/45">admin</span>
+          Alleyo <span className="text-xs font-medium text-sidebar-foreground/45">admin</span>
         </Link>
 
         <nav className="mt-8 space-y-1">
@@ -72,7 +72,7 @@ export default function AdminShell({ children }) {
         <div className="flex items-center justify-between">
           <Link href="/admin" className="flex items-center gap-2 font-semibold tracking-tight">
             <MapPin className="h-5 w-5 text-primary" />
-            nearU
+            Alleyo
           </Link>
           <button
             type="button"
