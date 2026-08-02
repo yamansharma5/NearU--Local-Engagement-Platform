@@ -1,6 +1,6 @@
-# NearU
+# Alleyo Earlier NearU
 
-NearU is a hyperlocal discovery platform that helps people find businesses, offers, events, and local updates around them.
+It is a hyperlocal discovery platform that helps people find businesses, offers, events, and local updates around them.
 
 Imagine stepping outside and wanting to know what is happening nearby: a sale at the shop around the corner, a food offer from a restaurant, a weekend event, or a new local store worth visiting. Instead of checking multiple apps and groups, NearU brings nearby activity into one feed and one map.
 
@@ -8,7 +8,7 @@ Imagine stepping outside and wanting to know what is happening nearby: a sale at
 
 ## What it is
 
-NearU shows users what is happening within a selected distance, such as 1 km, 3 km, or 5 km. Users can browse nearby posts in a feed, view businesses on a map, filter by category, and send enquiries to businesses.
+Alleyo shows users what is happening within a selected distance, such as 1 km, 3 km, or 5 km. Users can browse nearby posts in a feed, view businesses on a map, filter by category, and send enquiries to businesses.
 
 For local businesses, NearU provides a dashboard to manage their profile, publish offers or events, upload images, track enquiries, and stay visible to people nearby.
 
@@ -96,7 +96,7 @@ Set the schedule to every 10 minutes. This keeps the Render web service warm dur
 
 ## Future scope
 
-NearU can grow from a discovery MVP into a complete hyperlocal business platform.
+Alleyo can grow from a discovery MVP into a complete hyperlocal business platform.
 
 - **Razorpay payments for business promotion**: businesses can pay for promoted posts, featured map pins, boosted offers, premium profile placement, and subscription plans. Razorpay webhooks can confirm payments, renewals, refunds, and failed transactions.
 - **Promoted posts and local ads**: businesses can boost posts for a selected radius, time window, category, or local area. Promoted content should be clearly marked while still staying relevant to the user's location.
